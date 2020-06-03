@@ -17,6 +17,13 @@ function getJSON(url, callback) {
   xhr.send();
 }
 
+function getProfiles(json) {
+  json.people.map((person) => {
+    // only putting the variable name so that it doesn't get called right away
+    getJSON(wikiUrl + person.name, generateHTML);
+  });
+}
+
 // Generate the markup for each profile
 function generateHTML(data) {
   const section = document.createElement("section");
@@ -30,12 +37,7 @@ function generateHTML(data) {
 }
 // this will log the data to the console after the button is clicked
 btn.addEventListener("click", (event) => {
-  getJSON(astrosUrl, (json) => {
-    json.people.map((person) => {
-      // only putting the variable name so that it doesn't get called right away
-      getJSON(wikiUrl + person.name, generateHTML);
-    });
-  });
+  getJSON(astrosUrl, getProfiles);
   // this will remove the button once it is clicked
   event.target.remove();
 });
