@@ -14,40 +14,47 @@ function getJSON(url) {
       if (xhr.status === 200) {
         let data = JSON.parse(xhr.responseText);
         resolve(data);
-      } else reject(Error(xhr.statusText));
+      } else {
+        reject(Error(xhr.statusText));
+      }
     };
-    xhr.onerror = () => reject(Error("A network error occurred"));
     xhr.send();
+    xhr.onerror = () => reject(Error("A network error occurred"));
   });
 }
 
 // we will have this  return one array
 function getProfiles(json) {
   const profiles = json.people.map((person) => {
+    //putting this because we are having an issue with the name
+    if (person.name == "Anatoly Ivanishin") {
+      person.name = "Anatoli_Ivanishin";
+    }
     return getJSON(wikiUrl + person.name);
   });
-  return profiles;
+  // this will reject if one of them fails
+  return Promise.all(profiles);
 }
-
 // generate the markup of each person
 function generateHTML(data) {
-  const section = document.createElement("section");
-  peopleList.appendChild(section);
-  section.innerHTML = `
-    <img src=${data.thumbnail.source}>
-    <h2>${data.title}</h2>
-    <p>${data.description}</p>
-    <p>${data.extract}</p>
-  `;
+  // now we map out the data for our HTML
+  data.map((person) => {
+    const section = document.createElement("section");
+    peopleList.appendChild(section);
+    section.innerHTML = `
+      <img src=${person.thumbnail.source}>
+      <h2>${person.title}</h2>
+      <p>${person.description}</p>
+      <p>${person.extract}</p>
+    `;
+  });
 }
 
 btn.addEventListener("click", (event) => {
   getJSON(astrosUrl)
     .then(getProfiles)
-    // we are going to log our data
-    .then((data) => {
-      console.log(data);
-    })
+    // generating html
+    .then(generateHTML)
     .catch((err) => {
       console.log(err);
     });
