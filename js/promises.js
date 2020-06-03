@@ -51,13 +51,18 @@ function generateHTML(data) {
 }
 
 btn.addEventListener("click", (event) => {
+  event.target.textContent = "Loading...";
   getJSON(astrosUrl)
     .then(getProfiles)
     // generating html
     .then(generateHTML)
     .catch((err) => {
+      // this message appears at the end of an error
+      peopleList.innerHTML = "<h3>Something went wrong...</h3>";
       console.log(err);
+    })
+    // finally returns a function to cap it off
+    .finally(() => {
+      event.target.remove();
     });
-
-  event.target.remove();
 });
