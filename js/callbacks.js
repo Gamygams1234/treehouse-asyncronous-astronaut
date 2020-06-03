@@ -4,13 +4,14 @@ const peopleList = document.getElementById("people");
 const btn = document.querySelector("button");
 
 // Make an AJAX request
-function getJSON(url) {
+// this will be a higher order function
+function getJSON(url, callback) {
   const xhr = new XMLHttpRequest();
   xhr.open("GET", url);
   xhr.onload = () => {
     if (xhr.status === 200) {
       let data = JSON.parse(xhr.responseText);
-      console.log(data);
+      return callback(data);
     }
   };
   xhr.send();
@@ -28,4 +29,13 @@ function generateHTML(data) {
   `;
 }
 // this will log the data to the console after the button is clicked
-btn.addEventListener("click", () => getJSON(astrosUrl));
+btn.addEventListener("click", (event) => {
+  getJSON(astrosUrl, (json) => {
+    json.people.map((person) => {
+      // only putting the variable name so that it doesn't get called right away
+      getJSON(wikiUrl + person.name, generateHTML);
+    });
+  });
+  // this will remove the button once it is clicked
+  event.target.remove();
+});
